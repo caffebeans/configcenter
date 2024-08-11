@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>发布历史</title>
+    <script src="../common/import.js"></script>
+    <style>
+        .el-tabs--border-card > .el-tabs__content {
+            padding: 2px;
+        }
+
+        .el-table__expanded-cell[class*=cell] {
+            padding: 0;
+        }
+
+        .badge-style {
+            margin-top: 10px;
+            margin-right: 16px;
+        }
+
+        .badged-text-style {
+            margin-right: 8px;
+        }
+
+        .release-property-text-style {
+            font-size: xx-small;
+        }
+
+        .configcenter-loading-control {
+            height: 44px;
+            border-bottom-left-radius: 4px;
+            border-bottom-right-radius: 4px;
+            text-align: center;
+            margin-top: -1px;
+            color: #606266;
+            cursor: pointer;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+<div id="releasesApp">
+    <el-container>
+        <el-header height="30px" style="padding: 0">
+            <span style="font-size: medium;color: #409EFF;">应用：</span><span style="font-size: medium;">{{ toShowingApp(app) }}</span>
+            <span style="font-size: medium;color: #409EFF;margin-left: 20px">环境：</span><span style="font-size: medium;">{{ toShowingProfile(profile) }}</span>
+            <span style="font-size: medium;color: #409EFF;margin-left: 20px">分支：</span><span style="font-size: medium;">{{ branchId }}</span>
+        </el-header>
+        <el-container>
+            <el-aside width="500px">
+                <el-table :data="releases"
+                          @current-change="changeShowingRelease"
+                          border
+                          highlight-current-row
+                          :cell-style="{padding: '7px 0'}">
+                    <el-table-column property="version" label="版本" width="70px"></el-table-column>
+                    <el-table-column property="releaseTime" label="发布时间" width="150px">
+                        <template slot-scope="{ row }">
+                            <span v-if="row.version !== 0" style="font-size: xx-small">{{ new Date(row.releaseTime).format('yyyy-MM-dd hh:mm:ss') }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column property="memo" label="备注">
+                        <template slot-scope="{ row }">
+                            <span style="font-size: xx-small">{{ row.memo }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" header-align="center" width="55px">
+                        <template slot-scope="{ row }">
+                            <el-row>
+                                <el-col :span="24" style="text-align: center">
+                                    <el-tooltip content="回滚到此版本" placement="top" :open-delay="1000" :hide-after="3000">
+                                        <el-button @click="revertBranch(row)" :disabled="currentRelease ? currentRelease.version === row.version : false" type="danger" icon="el-icon-arrow-left" size="mini" circle></el-button>
+                                    </el-tooltip>
+                                </el-col>
+                            </el-row>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-row style="margin-top: 10px" v-if="!allReleasesLoaded">
+                    <el-col style="text-align: center">
+                        <div class="configcenter-loading-control" @click="queryNextReleases">
+                            <i class="el-icon-loading" v-if="releasesLoading"></i>
+                            <i class="el-icon-caret-bottom" v-else></i>
+                            <span>加载更多</span>
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-aside>
+            <el-main style="padding: 0 0 0 2px">
+                <el-tabs type="border-card" stretch>
+                    <el-tab-pane label="变更的配置">
+                        <el-table :data="showingRelease ? showingRelease.changes : []"
+                                  :default-sort="{prop: 'key'}"
+                                  border
+                                  height="565"
+                                  :header-cell-style="{padding: '8px 0'}"
+                                  :cell-style="{padding: '2px 0'}">
+                            <el-table-column type="expand">
+                                <template slot-scope="props">
+                                    <template v-if="showingRelease.difference.modifiedValueKeys.indexOf(props.row.key) >= 0 || showingRelease.difference.modifiedScopeKeys.indexOf(props.row.key) >= 0">
+                                        <el-table :data="[props.row.previous]"
+                                                  :show-header="false"
+                                                  :row-style="{background: '#f6f9ff'}"
+                                                  :cell-style="{padding: '8px 0'}">
+                                            <el-table-column width="48px">
+                                                <template slot-scope="{ row }">
+                                                    <span style="font-size: small;color: #E6A23C">旧值</span>
+                                                </template>
+                                            </el-table-column>
+                                            <el-table-column property="key" label="配置key">
+                                                <template slot-scope="{ row }">
+                                                    <span class="release-property-text-style">{{ row.key }}</span>
+                                                </template>
+                                            </el-table-column>
+                                            <el-table-column property="value" label="配置value">
+                                                <template slot-scope="{ row }">
+                                                    <el-tag v-if="row.value === null" size="medium">无效</el-tag>
+                                                    <el-tag v-else-if="manager.type === 'NORMAL' && row.propertyType === 'NONE'" type="danger" size="medium">无权限</el-tag>
+                                                    <span v-else class="release-property-text-style">{{ row.value }}</span>
+                                                </template>
+                                            </el-table-column>
+                                            <el-table-column property="scope" label="作用域" width="94px">
+                                                <template slot-scope="{ row }">
+                                                    <el-tag v-if="row.scope === 'PRIVATE'" size="medium">私有</el-tag>
+                                                    <el-tag v-else-if="row.scope === 'PROTECTED'" type="success" size="medium">可继承</el-tag>
+                                                    <el-tag v-else-if="row.scope === 'PUBLIC'" type="warning" size="medium">公开</el-tag>
+                                                </template>
+                                            </el-table-column>
+                                        </el-table>
+                                    </template>
+                                </template>
+                            </el-table-column>
+                            <el-table-column property="key" label="配置key">
+                                <template slot-scope="{ row }">
+                                    <el-badge v-if="showingRelease.difference.addedKeys.indexOf(row.key) >= 0" type="success" value="新" class="badge-style">
+                                        <span class="badged-text-style release-property-text-style">{{ row.key }}</span>
+                                    </el-badge>
+                                    <el-badge v-else-if="showingRelease.difference.deletedKeys.indexOf(row.key) >= 0" type="danger" value="删" class="badge-style">
+                                        <span class="badged-text-style release-property-text-style">{{ row.key }}</span>
+                                    </el-badge>
+                                    <span v-else class="release-property-text-style">{{ row.key }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="配置value">
+                                <template slot-scope="{ row }">
+                                    <template v-if="showingRelease.difference.modifiedValueKeys.indexOf(row.key) >= 0">
+                                        <el-badge type="warning" value="改" class="badge-style">
+                                            <el-tag v-if="row.current.value === null" size="medium">无效</el-tag>
+                                            <el-tag v-else-if="manager.type === 'NORMAL' && row.current.propertyType === 'NONE'" type="danger" size="medium">无权限</el-tag>
+                                            <span v-else class="badged-text-style release-property-text-style">{{ row.current.value }}</span>
+                                        </el-badge>
+                                    </template>
+                                    <div v-else-if="row.current">
+                                        <el-tag v-if="row.current.value === null" size="medium">无效</el-tag>
+                                        <el-tag v-else-if="manager.type === 'NORMAL' && row.current.propertyType === 'NONE'" type="danger" size="medium">无权限</el-tag>
+                                        <span v-else class="release-property-text-style">{{ row.current.value }}</span>
+                                    </div>
+                                    <div v-else>
+                                        <el-tag v-if="row.previous.value === null" size="medium">无效</el-tag>
+                                        <el-tag v-else-if="manager.type === 'NORMAL' && row.previous.propertyType === 'NONE'" type="danger" size="medium">无权限</el-tag>
+                                        <span v-else class="release-property-text-style">{{ row.previous.value }}</span>
+                                    </div>
+                                </template>
+                            </el-table-column>
+                            <el-table-column label="作用域" :resizable="false" width="95px">
+                                <template slot-scope="{ row }">
+                                    <template v-if="showingRelease.difference.modifiedScopeKeys.indexOf(row.key) >= 0">
+                                        <el-badge type="warning" value="改" class="badge-style">
+                                            <el-tag v-if="row.current.scope === 'PRIVATE'" size="medium">私有</el-tag>
+                                            <el-tag v-else-if="row.current.scope === 'PROTECTED'" type="success" size="medium">可继承</el-tag>
+                                            <el-tag v-else-if="row.current.scope === 'PUBLIC'" type="warning" size="medium">公开</el-tag>
+                                        </el-badge>
+                                    </template>
+                                    <div v-else-if="row.current">
+                                        <el-tag v-if="row.current.scope === 'PRIVATE'" size="medium">私有</el-tag>
+                                        <el-tag v-else-if="row.current.scope === 'PROTECTED'" type="success" size="medium">可继承</el-tag>
+                                        <el-tag v-else-if="row.current.scope === 'PUBLIC'" type="warning" size="medium">公开</el-tag>
+                                    </div>
+                                    <div v-else>
+                                        <el-tag v-if="row.previous.scope === 'PRIVATE'" size="medium">私有</el-tag>
+                                        <el-tag v-else-if="row.previous.scope === 'PROTECTED'" type="success" size="medium">可继承</el-tag>
+                                        <el-tag v-else-if="row.previous.scope === 'PUBLIC'" type="warning" size="medium">公开</el-tag>
+                                    </div>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-tab-pane>
+                    <el-tab-pane label="所有配置">
+                        <el-table :data="showingRelease ? showingRelease.properties : []"
+                                  :default-sort="{prop: 'key'}"
+                                  border
+                                  height="565"
+                                  :header-cell-style="{padding: '8px 0'}"
+                                  :cell-style="{padding: '2px 0'}">
+                            <el-table-column property="key" label="配置key">
+                                <template slot-scope="{ row }">
+                                    <span class="release-property-text-style">{{ row.key }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column property="value" label="配置value">
+                                <template slot-scope="{ row }">
+                                    <el-tag v-if="row.value === null">无效</el-tag>
+                                    <el-tag v-else-if="manager.type === 'NORMAL' && row.propertyType === 'NONE'" type="danger">无权限</el-tag>
+                                    <span v-else class="release-property-text-style">{{ row.value }}</span>
+                                </template>
+                            </el-table-column>
+                            <el-table-column property="scope" label="作用域" :resizable="false" width="80px">
+                                <template slot-scope="{ row }">
+                                    <el-tag v-if="row.scope === 'PRIVATE'" size="medium">私有</el-tag>
+                                    <el-tag v-else-if="row.scope === 'PROTECTED'" type="success" size="medium">可继承</el-tag>
+                                    <el-tag v-else-if="row.scope === 'PUBLIC'" type="warning" size="medium">公开</el-tag>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </el-tab-pane>
+                </el-tabs>
+            </el-main>
+        </el-container>
+    </el-container>
+</div>
+<script>
+    GET_CURRENT_MANAGER(function (manager) {
+        const releasesApp = new Vue({
+            el: '#releasesApp',
+            data: {
+                appId: 'customer',
+                profileId: 'dev',
+                branchId: 'master',
+                manager: manager,
+                app: {},
+                profile: {},
+                loadReleasesSize: 20,
+                releasesLoading: false,
+                allReleasesLoaded: false,
+                releases: [],
+                showingRelease: {},
+                inheritedAppRules: [],
+                currentRelease: null
+            },
+            created: function () {
+                this.findApp(this.appId);
+                this.findProfile(this.profileId);
+                this.findInheritedAppRules();
+                this.queryNextReleases();
+            },
+            methods: {
+                refreshData: function () {
+                    this.allReleasesLoaded = false;
+                    this.releases = [];
+                    this.showingRelease = {};
+                    this.inheritedAppRules = [];
+                    this.currentRelease = null;
+                    this.queryNextReleases();
+                },
+                queryNextReleases: function () {
+                    const theThis = this;
+                    theThis.releasesLoading = true;
+                    const fillNextReleases = function (version, amount) {
+                        if (version === null) {
+                            theThis.releasesLoading = false;
+                            theThis.allReleasesLoaded = true;
+                            return;
+                        }
+                        theThis.doFindRelease(theThis.appId, theThis.profileId, version, function (release) {
+                            release.properties.forEach(function (property) {
+                                property.propertyType = theThis.computePropertyType(release.appId, property.key);
+                            });
+                            theThis.compareReleases(
+                                theThis.appId,
+                                theThis.profileId,
+                                release.version,
+                                release.parentVersion,
+                                function (difference) {
+                                    release.difference = difference;
+                                    release.changes = [];
+                                    if (theThis.releases.length > 0) {
+                                        let childRelease = theThis.releases[theThis.releases.length - 1];
+                                        childRelease.changes = theThis.extractChanges(childRelease.properties, release.properties, childRelease.difference);
+                                    }
+                                    if (amount > 0) {
+                                        if (theThis.releases.length <= 0) {
+                                            theThis.changeShowingRelease(release);
+                                        }
+                                        theThis.releases.push(release);
+                                        fillNextReleases(release.parentVersion, amount - 1);
+                                    } else {
+                                        theThis.releasesLoading = false;
+                                    }
+                                });
+                        });
+                    };
+                    if (theThis.releases.length <= 0) {
+                        this.doFindBranch(theThis.appId, theThis.profileId, theThis.branchId, function (branch) {
+                            theThis.currentRelease = branch.release;
+                            fillNextReleases(branch.release.version, theThis.loadReleasesSize);
+                        });
+                    } else {
+                        fillNextReleases(theThis.releases[theThis.releases.length - 1].parentVersion, theThis.loadReleasesSize);
+                    }
+                },
+                doFindBranch: function (appId, profileId, branchId, callback) {
+                    const theThis = this;
+                    axios.get('../manage/branch/findBranch', {
+                        params: {
+                            appId: theThis.appId,
+                            profileId: theThis.profileId,
+                            branchId: theThis.branchId
+                        }
+                    }).then(function (result) {
+                        if (!result.success) {
+                            Vue.prototype.$message.error(result.message);
+                            return;
+                        }
+                        callback(result.branch);
+                    });
+                },
+                doFindRelease: function (appId, profileId, version, callback) {
+                    axios.get('../manage/release/findRelease', {
+                        params: {
+                            appId: appId,
+                            profileId: profileId,
+                            version: version
+                        }
+                    }).then(function (result) {
+                        if (!result.success) {
+                            Vue.prototype.$message.error(result.message);
+                        }
+                        callback(result.release);
+                    });
+                },
+                compareReleases: function (appId, profileId, leftVersion, rightVersion, callback) {
+                    if (rightVersion === null) {
+                        callback({
+                            addedKeys: [],
+                            modifiedValueKeys: [],
+                            modifiedScopeKeys: [],
+                            deletedKeys: []
+                        });
+                        return;
+                    }
+                    axios.get('../manage/release/compareReleases', {
+                        params: {
+                            appId: appId,
+                            profileId: profileId,
+                            leftVersion: leftVersion,
+                            rightVersion: rightVersion
+                        }
+                    }).then(function (result) {
+                        if (!result.success) {
+                            Vue.prototype.$message.error(result.message);
+                        }
+                        callback(result.difference);
+                    });
+                },
+                extractChanges: function (leftProperties, rightProperties, difference) {
+                    let leftMap = {};
+                    leftProperties.forEach(function (property) {
+                        leftMap[property.key] = property;
+                    });
+                    let rightMap = {};
+                    rightProperties.forEach(function (property) {
+                        rightMap[property.key] = property;
+                    });
+
+                    let keys = [];
+                    let temp = difference.addedKeys.concat(
+                        difference.modifiedValueKeys,
+                        difference.modifiedScopeKeys,
+                        difference.deletedKeys);
+                    temp.forEach(function (key) {
+                        if (keys.indexOf(key) < 0) {
+                            keys.push(key);
+                        }
+                    });
+
+                    let changes = [];
+                    keys.forEach(function (key) {
+                        changes.push({
+                            key: key,
+                            current: leftMap[key],
+                            previous: rightMap[key]
+                        });
+                    });
+
+                    return changes;
+                },
+                findApp: function (appId) {
+                    const theThis = this;
+                    axios.get('../manage/app/findApp', {
+                        params: {
+                            appId: appId
+                        }
+                    }).then(function (result) {
+                        if (!result.success) {
+                            Vue.prototype.$message.error(result.message);
+                            return;
+                        }
+                        theThis.app = result.app;
+                    });
+                },
+                toShowingApp: function (app) {
+                    if (!app) {
+                        return '';
+                    }
+                    let text = app.appId;
+                    if (app.appName) {
+                        text += '（' + app.appName + '）';
+                    }
+                    return text;
+                },
+                findProfile: function (profileId) {
+                    const theThis = this;
+                    axios.get('../manage/profile/findProfile', {
+                        params: {
+                            profileId: profileId
+                        }
+                    }).then(function (result) {
+                        if (!result.success) {
+                            Vue.prototype.$message.error(result.message);
+                            return;
+                        }
+                        theThis.profile = result.profile;
+                    });
+                },
+                toShowingProfile: function (profile) {
+                    if (!profile) {
+                        return '';
+                    }
+                    let text = profile.profileId;
+                    if (profile.profileName) {
+                        text += '（' + profile.profileName + '）';
+                    }
+                    return text;
+                },
+                changeShowingRelease: function (row) {
+                    this.showingRelease = row;
+                },
+                revertBranch: function (release) {
+                    const theThis = this;
+                    Vue.prototype.$confirm('回滚后，应用的配置将会采用此版本，且大于此版本的发布将会被删除。确定回滚？', '警告', {type: 'warning'})
+                        .then(function () {
+                            axios.post('../manage/branch/revertBranch', {
+                                appId: theThis.appId,
+                                profileId: theThis.profileId,
+                                branchId: theThis.branchId,
+                                targetReleaseVersion: release.version
+                            }).then(function (result) {
+                                if (!result.success) {
+                                    Vue.prototype.$message.error(result.message);
+                                    return;
+                                }
+                                Vue.prototype.$message.success(result.message);
+                                theThis.refreshData();
+                            });
+                        });
+                },
+                findInheritedAppRules: function (callback) {
+                    const theThis = this;
+                    axios.get('../manage/propertyType/findInheritedAppRules', {
+                        params: {
+                            appId: theThis.appId
+                        }
+                    }).then(function (result) {
+                        if (!result.success) {
+                            Vue.prototype.$message.error(result.message);
+                            return;
+                        }
+                        theThis.inheritedAppRules = result.inheritedAppRules;
+                        if (callback) {
+                            callback(theThis.inheritedAppRules);
+                        }
+                    });
+                },
+                computePropertyType: function (appId, key) {
+                    let started = false;
+                    for (let i = 0; i < this.inheritedAppRules.length; i++) {
+                        let appRule = this.inheritedAppRules[i];
+                        if (appRule.app.appId === appId) {
+                            started = true;
+                        }
+                        if (started) {
+                            for (let j = 0; j < appRule.rules.length; j++) {
+                                let rule = appRule.rules[j];
+                                let regex = rule.keyRegex;
+                                if (!regex.startsWith('^')) {
+                                    regex = '^' + regex;
+                                }
+                                if (!regex.endsWith('$')) {
+                                    regex += '$';
+                                }
+                                if (new RegExp(regex).test(key)) {
+                                    return rule.propertyType;
+                                }
+                            }
+                        }
+                    }
+                    return 'READ_WRITE';
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>configcenter</title>
+    <script>
+        CONFIGCENTER_VERSION = '1.7.3';
+        document.write("<script src=\"../common/import.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
+    </script>
+</head>
+<body>
+<div id="loginApp">
+    <manager-login :title-html="titleHtml" :init-admin-path="initAdminPath" :main-path="mainPath"></manager-login>
+</div>
+<script>
+    const loginApp = new Vue({
+        el: '#loginApp',
+        data: {
+            titleHtml: `
+                <i class="configcenter-iconfont configcenter-icon-deploymentunit" style="font-size: xx-large;color: #1cf0b2"></i>
+                <span style="font-size: xx-large;">configcenter</span>
+            `,
+            initAdminPath: 'initAdmin.html',
+            mainPath: 'main.html'
+        }
+    });
+</script>
+</body>
+</html>

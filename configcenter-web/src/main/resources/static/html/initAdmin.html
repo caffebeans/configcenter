@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>configcenter</title>
+    <script>
+        CONFIGCENTER_VERSION = '1.7.3';
+        document.write("<script src=\"../common/import.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
+    </script>
+</head>
+<body>
+<div id="initAdminApp">
+    <manager-init-admin></manager-init-admin>
+</div>
+<script>
+    const initAdminApp = new Vue({
+        el: '#initAdminApp'
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "properties": [
+    {
+      "sourceType": "org.antframework.configcenter.spring.boot.ConfigcenterProperties",
+      "name": "configcenter.auto-refresh-configs.enable",
+      "description": "选填：是否开启自动刷新configcenter配置（默认为开启）",
+      "type": "java.lang.Boolean",
+      "defaultValue": true
+    },
+    {
+      "sourceType": "org.antframework.configcenter.spring.boot.ConfigcenterProperties",
+      "name": "configcenter.auto-refresh-configs.period",
+      "description": "选填：自动刷新configcenter配置的周期（单位：毫秒。默认为5分钟刷新一次）",
+      "type": "java.lang.Long",
+      "defaultValue": 300000
+    }
+  ]
+}

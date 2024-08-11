@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>configcenter</title>
+    <script>
+        CONFIGCENTER_VERSION = '1.7.3';
+        document.write("<script src=\"../common/import.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
+        document.write("<script src=\"../components/Configs.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
+        document.write("<script src=\"../components/PropertyKeys.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
+        document.write("<script src=\"../components/PropertyTypes.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
+        document.write("<script src=\"../components/PropertyValues.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
+        document.write("<script src=\"../components/Branches.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
+        document.write("<script src=\"../components/Releases.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
+        document.write("<script src=\"../components/Apps.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
+        document.write("<script src=\"../components/Profiles.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
+        document.write("<script src=\"../components/ManagerApps.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
+    </script>
+    <style>
+        .propertyKey-text-style {
+            font-size: small;
+        }
+
+        .badge-style {
+            margin-top: 10px;
+            margin-right: 16px;
+        }
+
+        .badged-text-style {
+            margin-right: 8px;
+        }
+
+        .propertyValue-text-style {
+            font-size: small;
+        }
+
+        .el-table .invalid-property {
+            background: rgba(255, 179, 68, 0.07);
+        }
+
+        .el-tabs--border-card > .el-tabs__content {
+            padding: 2px;
+        }
+
+        .el-table__expanded-cell[class*=cell] {
+            padding: 0;
+        }
+
+        .el-table .current-release-row {
+            background: rgba(148, 255, 182, 0.57);
+        }
+
+        .release-property-text-style {
+            font-size: xx-small;
+        }
+
+        .keyRegex-text-style {
+            font-size: small;
+        }
+
+        .configcenter-table__empty-text {
+            line-height: 35px;
+            width: 50%;
+            color: #909399;
+        }
+    </style>
+</head>
+<body>
+<div id="mainApp">
+    <manager-main :title-html="titleHtml"
+                  :routes="routes"
+                  :manager="manager"></manager-main>
+</div>
+<script>
+    // 普通管理员权限
+    const NORMAL_MANAGER_ROUTES = [{
+        path: '/configs',
+        component: {
+            template: '<router-view></router-view>'
+        },
+        meta: {
+            title: '配置',
+            icon: 'el-icon-tickets'
+        },
+        children: [{
+            path: '',
+            component: Configs
+        }, {
+            path: ':appId',
+            props: true,
+            component: {
+                props: ['appId'],
+                template: '<router-view :appId="appId"></router-view>'
+            },
+            meta: {
+                title: '配置key'
+            },
+            children: [{
+                path: '',
+                component: PropertyKeys
+            }, {
+                path: 'propertyTypes',
+                component: PropertyTypes,
+                meta: {
+                    title: '普通管理员权限'
+                }
+            }, {
+                path: ':profileId',
+                props: true,
+                component: {
+                    props: ['appId', 'profileId'],
+                    template: '<router-view :appId="appId" :profileId="profileId"></router-view>'
+                },
+                meta: {
+                    title: '配置value'
+                },
+                children: [{
+                    path: '',
+                    component: PropertyValues
+                }, {
+                    path: 'branches',
+                    component: Branches,
+                    meta: {
+                        title: '分支管理'
+                    }
+                }, {
+                    path: 'releases/:branchId',
+                    props: true,
+                    component: {
+                        props: ['appId', 'profileId', 'branchId'],
+                        template: '<router-view :appId="appId" :profileId="profileId" :branchId="branchId"></router-view>'
+                    },
+                    meta: {
+                        title: '发布历史'
+                    },
+                    children: [{
+                        path: '',
+                        component: Releases
+                    }]
+                }]
+            }]
+        }]
+    }];
+    // 超级管理员权限
+    const ADMIN_MANAGER_ROUTES = Object.assign([], NORMAL_MANAGER_ROUTES);
+    ADMIN_MANAGER_ROUTES.push({
+        path: '/apps',
+        component: Apps,
+        meta: {
+            title: '应用',
+            icon: 'el-icon-menu'
+        }
+    }, {
+        path: '/profiles',
+        component: Profiles,
+        meta: {
+            title: '环境',
+            icon: 'configcenter-iconfont configcenter-icon-cloud'
+        }
+    }, GET_MANAGER_MANAGERS_ROUTE(), {
+        path: '/managerApps',
+        component: ManagerApps,
+        meta: {
+            title: '权限',
+            icon: 'el-icon-view'
+        }
+    });
+
+    // 主页面应用
+    let mainApp;
+    GET_CURRENT_MANAGER(function (manager) {
+        mainApp = new Vue({
+            el: '#mainApp',
+            data: {
+                titleHtml: `
+                        <i class="configcenter-iconfont configcenter-icon-deploymentunit" style="font-size: x-large;color: #1cf0b2"></i>
+                        <span style="font-size: x-large;color: #fff;">configcenter</span>
+                    `,
+                routes: manager.type === 'NORMAL' ? NORMAL_MANAGER_ROUTES : ADMIN_MANAGER_ROUTES,
+                manager: manager
+            }
+        });
+    });
+</script>
+</body>
+</html>
