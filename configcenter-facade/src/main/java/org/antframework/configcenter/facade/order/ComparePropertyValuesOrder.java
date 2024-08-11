@@ -21,7 +21,7 @@ import javax.validation.constraints.NotNull;
  */
 @Getter
 @Setter
-public class FindPropertyValuesOrder extends AbstractOrder {
+public class ComparePropertyValuesOrder extends AbstractOrder {
     // 应用id
 
     private String appId;
@@ -34,4 +34,7 @@ public class FindPropertyValuesOrder extends AbstractOrder {
     // 最小作用域
 
     private Scope minScope;
+
+    private String key;
+
 }

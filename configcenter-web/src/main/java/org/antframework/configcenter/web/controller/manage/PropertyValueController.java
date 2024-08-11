@@ -20,10 +20,7 @@ import org.antframework.configcenter.biz.util.Releases;
 import org.antframework.configcenter.facade.api.PropertyValueService;
 import org.antframework.configcenter.facade.info.PropertyDifference;
 import org.antframework.configcenter.facade.info.PropertyValueInfo;
-import org.antframework.configcenter.facade.order.AddOrModifyPropertyValueOrder;
-import org.antframework.configcenter.facade.order.DeletePropertyValueOrder;
-import org.antframework.configcenter.facade.order.FindPropertyValuesOrder;
-import org.antframework.configcenter.facade.order.RevertPropertyValuesOrder;
+import org.antframework.configcenter.facade.order.*;
 import org.antframework.configcenter.facade.result.FindPropertyValuesResult;
 import org.antframework.configcenter.facade.vo.Property;
 import org.antframework.configcenter.facade.vo.Scope;
@@ -95,6 +92,21 @@ public class PropertyValueController {
         order.setKey(key);
 
         return propertyValueService.deletePropertyValue(order);
+    }
+
+    @RequestMapping("/comparePropertyValues")
+    public FindPropertyValuesResult comparePropertyValues(String key) {
+//        ManagerApps.assertAdminOrHaveApp(appId);
+
+        ComparePropertyValuesOrder order = new ComparePropertyValuesOrder();
+        order.setKey(key);
+        FindPropertyValuesResult result = propertyValueService.comparePropertyValues(order);
+//        if (result.isSuccess() && CurrentManagerAssert.current().getType() != ManagerType.ADMIN) {
+//            List<PropertyValueInfo> maskedPropertyValues = AppPropertyTypes.maskPropertyValues(appId, result.getPropertyValues());
+//            result.getPropertyValues().clear();
+//            result.getPropertyValues().addAll(maskedPropertyValues);
+//        }
+        return result;
     }
 
     /**

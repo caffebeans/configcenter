@@ -9,10 +9,7 @@
 package org.antframework.configcenter.facade.api;
 
 import org.antframework.common.util.facade.EmptyResult;
-import org.antframework.configcenter.facade.order.AddOrModifyPropertyValueOrder;
-import org.antframework.configcenter.facade.order.DeletePropertyValueOrder;
-import org.antframework.configcenter.facade.order.FindPropertyValuesOrder;
-import org.antframework.configcenter.facade.order.RevertPropertyValuesOrder;
+import org.antframework.configcenter.facade.order.*;
 import org.antframework.configcenter.facade.result.FindPropertyValuesResult;
 
 /**
@@ -38,4 +35,7 @@ public interface PropertyValueService {
      * 查找配置value集
      */
     FindPropertyValuesResult findPropertyValues(FindPropertyValuesOrder order);
+
+    FindPropertyValuesResult comparePropertyValues(ComparePropertyValuesOrder order);
+
 }

@@ -9,7 +9,6 @@
 package org.antframework.configcenter.facade.result;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.antframework.common.util.facade.AbstractResult;
 import org.antframework.configcenter.facade.info.PropertyValueInfo;
 
@@ -20,8 +19,7 @@ import java.util.List;
  * 查找配置value集result
  */
 @Getter
-@Setter
-public class FindPropertyValuesResult extends AbstractResult {
+public class ComparePropertyValuesResult extends AbstractResult {
     // 配置value
     private final List<PropertyValueInfo> propertyValues = new ArrayList<>();
 

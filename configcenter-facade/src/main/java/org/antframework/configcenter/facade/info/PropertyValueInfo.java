@@ -8,11 +8,14 @@
  */
 package org.antframework.configcenter.facade.info;
 
+
 import lombok.Getter;
 import lombok.Setter;
 import org.antframework.common.util.facade.AbstractInfo;
 import org.antframework.common.util.tostring.format.Mask;
 import org.antframework.configcenter.facade.vo.Scope;
+
+import java.util.Date;
 
 /**
  * 配置value-info
@@ -33,4 +36,8 @@ public class PropertyValueInfo extends AbstractInfo {
     private String value;
     // 作用域
     private Scope scope;
+
+    private String createdBy;
+
+    private Date updateTime;
 }

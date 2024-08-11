@@ -24,6 +24,9 @@ import javax.persistence.*;
 @Getter
 @Setter
 public class PropertyValue extends AbstractEntity {
+
+    @Id
+    private Long id;
     // 应用id
     @Column(length = 64)
     private String appId;
@@ -50,4 +53,6 @@ public class PropertyValue extends AbstractEntity {
     @Column(length = 64)
     @Enumerated(EnumType.STRING)
     private Scope scope;
+
+
 }
