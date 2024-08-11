@@ -23,6 +23,9 @@ const PropertyValuesTemplate = `
             <router-link :to="'/configs/' + appId + '/' + profileId + '/releases/' + branchId">
                 <el-button type="text">发布历史</el-button>
             </router-link>
+                 <router-link :to="'/configs/' + appId + '/' + profileId + '/releases/' + branchId">
+                           <el-button type="text">环境导出</el-button>
+                 </router-link>
         </el-col>
     </el-row>
     <el-row style="margin-bottom: 10px">
@@ -140,7 +143,7 @@ const PropertyValuesTemplate = `
                                 </template>
                             </template>
                         </el-table-column>
-                        <el-table-column label="操作" header-align="center" align="center" :resizable="false" width="140px">
+                        <el-table-column label="操作" header-align="center" align="center" :resizable="false" width="200px">
                             <template slot-scope="{ row }">
                                 <template v-if="appProperty.app.appId === appId && profileProperty.profileId === profileId">
                                     <template v-if="differenceForMap.deletedKeys[row.key]">
@@ -162,7 +165,7 @@ const PropertyValuesTemplate = `
                                         </el-button-group>
                                     </template>
                                     <el-row v-else>
-                                        <el-col :span="12" style="text-align: center">
+                                        <el-col :span="8" style="text-align: center">
                                             <el-tooltip v-if="!row.editing" content="修改" placement="top" :open-delay="1000" :hide-after="3000">
                                                 <el-button @click="startEditing(row)" type="primary" :disabled="manager.type === 'NORMAL' && row.propertyType !== 'READ_WRITE'" icon="el-icon-edit" size="mini" circle></el-button>
                                             </el-tooltip>
@@ -175,16 +178,21 @@ const PropertyValuesTemplate = `
                                                 </el-tooltip>
                                             </el-button-group>
                                         </el-col>
-                                        <el-col :span="12" style="text-align: center">
+                                        <el-col :span="8" style="text-align: center">
                                             <el-tooltip content="删除" placement="top" :open-delay="1000" :hide-after="3000">
                                                 <el-button @click="deletePropertyValue(row.key)" type="danger" :disabled="manager.type === 'NORMAL' && row.propertyType !== 'READ_WRITE'" icon="el-icon-delete" size="mini" circle></el-button>
                                             </el-tooltip>
                                         </el-col>
+                                           <el-col :span="8" style="text-align: center">
+                                                <el-tooltip content="比对" placement="top" :open-delay="1000" :hide-after="3000">
+                                                    <el-button @click="comparePropertyValue(row.key)" type="success"  icon="el-icon-document" size="mini" circle></el-button>
+                                                </el-tooltip>
+                                            </el-col>
                                     </el-row>
                                 </template>
                                 <template v-else-if="isShowOverrideButton(row)">
                                     <el-tooltip content="覆盖" placement="top" :open-delay="1000" :hide-after="3000">
-                                        <el-button @click="overrideProperty(row)" :disabled="manager.type === 'NORMAL' && row.propertyType !== 'READ_WRITE'" type="success" icon="el-icon-edit" size="mini" plain circle></el-button>
+                                        <el-button @click="overrideProperty(row)" type="success" icon="el-icon-comment" size="mini" plain circle></el-button>
                                     </el-tooltip>
                                 </template>
                             </template>
@@ -249,7 +257,7 @@ const PropertyValuesTemplate = `
             <textarea disabled="disabled" autocomplete="off" class="el-textarea__inner" style="height: 550px;" placeholder="无配置">{{ allPropertiesInText }}</textarea>
         </div>
     </template>
-
+<!--新增对话框-->
     <el-dialog :visible.sync="addPropertyValueDialogShowing" :before-close="closeAddPropertyValueDialog" title="新增配置项" width="50%">
         <el-form ref="addPropertyValueForm" :model="addPropertyValueForm" label-width="20%">
             <el-form-item label="配置key" prop="key" :rules="[{required:true, message:'请输入配置key', trigger:'blur'}]">
@@ -271,6 +279,28 @@ const PropertyValuesTemplate = `
             <el-button type="primary" @click="addPropertyValue">提交</el-button>
         </div>
     </el-dialog>
+    <!--比对对话框-->
+        <el-dialog :visible.sync="comparePropertyValueDialogShowing" :before-close="closeComparePropertyValueDialog" title="属性比对" width="80%">
+         <el-table
+           :data="compareData"
+           border
+           style="width: 100%">
+              <el-table-column prop="appId" label="应用id"></el-table-column>
+              <el-table-column prop="profileId" label="名称空间"></el-table-column>
+              <el-table-column prop="babranchId" label="分支"></el-table-column>
+              <el-table-column prop="key" label="属性名"></el-table-column>
+              <el-table-column prop="value" label="属性值"></el-table-column>
+              <el-table-column prop="updateTime" label="更新时间"></el-table-column>
+                <el-table-column prop="updateBy" label="更新人"></el-table-column>
+         </el-table>
+            <div slot="footer">
+                <el-button @click="closeComparePropertyValueDialog">取消</el-button>
+                <el-button type="primary" @click="addPropertyValue">提交</el-button>
+            </div>
+        </el-dialog>
+
+
+
     <el-dialog :visible.sync="releaseBranchDialogVisible" :before-close="closeReleaseBranchDialog" title="新增发布" width="70%" center>
         <el-row>
             <el-col :span="3" style="text-align: right;">
@@ -346,6 +376,7 @@ const PropertyValues = {
     props: ['appId', 'profileId'],
     data: function () {
         return {
+            compareData:[],
             currentProfileId: this.profileId,
             branchId: 'master',
             manager: CURRENT_MANAGER,
@@ -366,6 +397,7 @@ const PropertyValues = {
             showMode: 'table',
             editingPropertyValuesInText: '',
             addPropertyValueDialogShowing: false,
+            comparePropertyValueDialogShowing: false,
             addPropertyValueForm: {
                 key: null,
                 value: null,
@@ -1111,6 +1143,30 @@ const PropertyValues = {
                 });
             });
         },
+
+
+        //  比对数据
+         comparePropertyValue: function (key) {
+                    const theThis = this;
+                    console.log("开始删除数据",key)
+                    this.comparePropertyValueDialogShowing=true;
+                    debugger;
+                     axios.get('../manage/propertyValue/comparePropertyValues', {
+                              params: {
+                                  key: key
+                              }
+                          }).then(function (result) {
+                              if (!result.success) {
+                                  Vue.prototype.$message.error(result.message);
+                                  return;
+                              }
+                               
+                              console.log("获取到数据",result.data)
+                              theThis.compareData="res.data.propertyValues"
+                          });
+
+
+         },
         doDeletePropertyValue: function (key, callback) {
             axios.get('../manage/propertyValue/deletePropertyValue', {
                 params: {
@@ -1201,6 +1257,12 @@ const PropertyValues = {
             this.addPropertyValueDialogShowing = false;
             this.$refs['addPropertyValueForm'].resetFields();
         },
+        // 关闭比较对话框
+        closeComparePropertyValueDialog: function () {
+               this.comparePropertyValueDialogShowing = false;
+        },
+
+
         addPropertyValue: function () {
             const theThis = this;
             this.$refs.addPropertyValueForm.validate(function (valid) {
