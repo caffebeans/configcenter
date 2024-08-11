@@ -287,7 +287,7 @@ const PropertyValuesTemplate = `
            style="width: 100%">
               <el-table-column prop="appId" label="应用id"></el-table-column>
               <el-table-column prop="profileId" label="名称空间"></el-table-column>
-              <el-table-column prop="babranchId" label="分支"></el-table-column>
+              <el-table-column prop="branchId" label="分支"></el-table-column>
               <el-table-column prop="key" label="属性名"></el-table-column>
               <el-table-column prop="value" label="属性值"></el-table-column>
               <el-table-column prop="updateTime" label="更新时间"></el-table-column>
@@ -1150,19 +1150,15 @@ const PropertyValues = {
                     const theThis = this;
                     console.log("开始删除数据",key)
                     this.comparePropertyValueDialogShowing=true;
-                    debugger;
+
                      axios.get('../manage/propertyValue/comparePropertyValues', {
                               params: {
                                   key: key
                               }
                           }).then(function (result) {
-                              if (!result.success) {
-                                  Vue.prototype.$message.error(result.message);
-                                  return;
-                              }
-                               
-                              console.log("获取到数据",result.data)
-                              theThis.compareData="res.data.propertyValues"
+                             console.log("完整响应数据", result);
+                             console.log("获取到数据",result)
+                              theThis.compareData=result.propertyValues
                           });
 
 
