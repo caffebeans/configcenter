@@ -16,6 +16,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.RepositoryDefinition;
 
 import javax.persistence.LockModeType;
@@ -38,6 +39,8 @@ public interface ProfileDao {
 
     @Cacheable(cacheNames = CacheConstant.PROFILE_CACHE_NAME, key = "#p0")
     Profile findByProfileId(String profileId);
+
+
 
     List<Profile> findByParent(String parent);
 

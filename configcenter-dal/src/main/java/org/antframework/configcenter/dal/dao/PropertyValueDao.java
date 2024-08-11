@@ -12,10 +12,10 @@ import org.antframework.configcenter.common.constant.CacheConstant;
 import org.antframework.configcenter.dal.entity.PropertyValue;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.RepositoryDefinition;
+import org.springframework.data.repository.query.Param;
 
 import javax.persistence.LockModeType;
 import java.util.List;
@@ -38,5 +38,15 @@ public interface PropertyValueDao{
     List<PropertyValue> findByAppIdAndProfileIdAndBranchId(String appId, String profileId, String branchId);
 
 
+    @Query("SELECT p FROM PropertyValue p WHERE p.appId = :appId AND p.profileId = :profileId AND p.branchId = :branchId")
+    List<PropertyValue> findAllProfilesByParentId(
+            @Param("appId") String appId,
+            @Param("profileId") String profileId,
+            @Param("branchId") String branchId);
+
     List<PropertyValue> findByKey(String key);
+
+
+
+
 }

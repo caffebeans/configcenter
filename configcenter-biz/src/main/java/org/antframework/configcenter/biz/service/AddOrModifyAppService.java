@@ -17,18 +17,25 @@ import org.antframework.configcenter.biz.util.Branches;
 import org.antframework.configcenter.biz.util.Profiles;
 import org.antframework.configcenter.biz.util.Refreshes;
 import org.antframework.configcenter.dal.dao.AppDao;
+import org.antframework.configcenter.dal.dao.ProfileDao;
+import org.antframework.configcenter.dal.dao.PropertyValueDao;
 import org.antframework.configcenter.dal.entity.App;
+import org.antframework.configcenter.dal.entity.Profile;
+import org.antframework.configcenter.dal.entity.PropertyValue;
 import org.antframework.configcenter.facade.info.BranchInfo;
 import org.antframework.configcenter.facade.info.ProfileInfo;
 import org.antframework.configcenter.facade.order.AddOrModifyAppOrder;
 import org.antframework.configcenter.facade.vo.BranchConstants;
 import org.antframework.configcenter.facade.vo.ReleaseConstant;
+import org.apache.commons.lang3.StringUtils;
 import org.bekit.service.annotation.service.Service;
 import org.bekit.service.annotation.service.ServiceAfter;
 import org.bekit.service.annotation.service.ServiceExecute;
 import org.bekit.service.engine.ServiceContext;
 import org.springframework.beans.BeanUtils;
 
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -40,6 +47,9 @@ public class AddOrModifyAppService {
     // 应用dao
     private final AppDao appDao;
 
+    private final PropertyValueDao profileValuesDao;
+    private final PropertyValueDao propertyValueDao;
+
     @ServiceExecute
     public void execute(ServiceContext<AddOrModifyAppOrder, EmptyResult> context) {
         AddOrModifyAppOrder order = context.getOrder();
@@ -49,10 +59,29 @@ public class AddOrModifyAppService {
         App app = appDao.findLockByAppId(order.getAppId());
         if (app == null) {
             app = new App();
-            app.setReleaseVersion(ReleaseConstant.ORIGIN_VERSION);
+            app.setReleaseVersion(ReleaseConstant.ORIGIN_VERSION);    //它的初始版本的是0
+            //说明需要新增加一个应用，如果为空，说明是需要新增应用的。它的父级应用id为空
+            if(!StringUtils.isEmpty(order.getParent())){
+                   //拿到所有的父容器的环境变量
+                List<PropertyValue> master = profileValuesDao.findAllProfilesByParentId(order.getParent(), "master", BranchConstants.DEFAULT_BRANCH_ID);
+                master.forEach(propertyValue -> {
+                    PropertyValue insertVo = new PropertyValue();
+                    insertVo.setUpdateTime(new Date());
+                    insertVo.setCreateTime(new Date());
+                    insertVo.setBranchId("master");
+                    insertVo.setProfileId("master");
+                    insertVo.setAppId(order.getAppId());
+                    insertVo.setKey(propertyValue.getKey());
+                    insertVo.setValue(propertyValue.getValue());
+                    insertVo.setScope(propertyValue.getScope());
+                    profileValuesDao.save(insertVo);
+                });
+            }
+
         }
         BeanUtils.copyProperties(order, app);
         appDao.save(app);
+
         // 保证默认分支存在
         for (ProfileInfo profile : Profiles.findAllProfiles()) {
             BranchInfo branch = Branches.findBranch(order.getAppId(), profile.getProfileId(), BranchConstants.DEFAULT_BRANCH_ID);
