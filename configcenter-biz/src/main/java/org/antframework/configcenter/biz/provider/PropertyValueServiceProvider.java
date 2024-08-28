@@ -69,7 +69,7 @@ public class PropertyValueServiceProvider implements PropertyValueService {
         byKey.forEach(propertyValue -> {
             PropertyValueInfo temp = new PropertyValueInfo();
             BeanUtils.copyProperties(propertyValue,temp);
-// 将 temp 对象添加到结果集中
+            // 将 temp 对象添加到结果集中
             res.addPropertyValue(temp);
         });
         res.setCode("200");

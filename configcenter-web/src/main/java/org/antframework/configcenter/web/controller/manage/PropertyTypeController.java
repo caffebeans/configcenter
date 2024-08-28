@@ -46,7 +46,6 @@ public class PropertyTypeController {
         Assert.notNull(propertyType, "propertyType不能为null");
         Assert.notNull(priority, "priority不能为null");
         CurrentManagerAssert.admin();
-
         AppPropertyTypes.addOrModifyRule(appId, new AppPropertyTypes.Rule(keyRegex, propertyType, priority));
         return FacadeUtils.buildSuccess(EmptyResult.class);
     }
@@ -88,4 +87,6 @@ public class PropertyTypeController {
         // 由近及远继承的应用规则（该应用本身在第一位）
         private List<AppPropertyTypes.AppRule> inheritedAppRules;
     }
+
+
 }

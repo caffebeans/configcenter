@@ -1135,6 +1135,9 @@ const PropertyValues = {
                 }
             });
         },
+
+
+
         deletePropertyValue: function (key, callback) {
             const theThis = this;
             this.doDeletePropertyValue(key, function () {
@@ -1261,6 +1264,7 @@ const PropertyValues = {
 
         addPropertyValue: function () {
             const theThis = this;
+            debugger;
             this.$refs.addPropertyValueForm.validate(function (valid) {
                 if (!valid) {
                     return;
