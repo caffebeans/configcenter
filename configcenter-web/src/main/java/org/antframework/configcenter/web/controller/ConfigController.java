@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/config")
 @AllArgsConstructor
 public class ConfigController {
-    // 监听配置的最小超时时间
+    // 监听配置的最小超时时间w
     private static final int LISTEN_MIN_TIMEOUT = 60000;
     // 监听配置的最大超时时间
     private static final int LISTEN_MAX_TIMEOUT = 90000;

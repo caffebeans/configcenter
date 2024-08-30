@@ -1115,28 +1115,28 @@ const PropertyValues = {
                 });
             });
         },
+
         doAddOrModifyPropertyValue: function (key, value, scope, callback) {
-            axios.get('../manage/propertyValue/addOrModifyPropertyValue', {
-                params: {
-                    appId: this.appId,
-                    profileId: this.profileId,
-                    branchId: this.branchId,
-                    key: key,
-                    value: value,
-                    scope: scope
-                }
-            }).then(function (result) {
-                if (!result.success) {
-                    Vue.prototype.$message.error(result.message);
-                    return;
-                }
-                if (callback) {
-                    callback();
-                }
-            });
+            const data = {
+                appId: this.appId,
+                profileId: this.profileId,
+                branchId: this.branchId,
+                key: key,
+                value: value,
+                scope: scope
+            }
+             fetch("../manage/propertyValue/addOrModifyPropertyValue", {
+                 method: "POST",
+                 headers: {
+                   "Content-Type": "application/json",
+                 },
+                 body: JSON.stringify(data),
+               })
+                 .then((response) => response.json())
+                 .then((data) => console.log(data))
+                 .catch((error) => console.error("Error:", error));
+
         },
-
-
 
         deletePropertyValue: function (key, callback) {
             const theThis = this;
@@ -1146,7 +1146,6 @@ const PropertyValues = {
                 });
             });
         },
-
 
         //  比对数据
          comparePropertyValue: function (key) {
@@ -1264,7 +1263,6 @@ const PropertyValues = {
 
         addPropertyValue: function () {
             const theThis = this;
-            debugger;
             this.$refs.addPropertyValueForm.validate(function (valid) {
                 if (!valid) {
                     return;

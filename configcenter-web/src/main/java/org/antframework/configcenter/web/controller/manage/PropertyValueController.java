@@ -28,11 +28,14 @@ import org.antframework.configcenter.web.common.AppPropertyTypes;
 import org.antframework.configcenter.web.common.ManagerApps;
 import org.antframework.manager.facade.enums.ManagerType;
 import org.antframework.manager.web.CurrentManagerAssert;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -57,8 +60,14 @@ public class PropertyValueController {
      * @param scope     作用域
      */
     @RequestMapping("/addOrModifyPropertyValue")
-    public EmptyResult addOrModifyPropertyValue(String appId, String profileId, String branchId, String key, String value, Scope scope) {
-        ManagerApps.assertAdminOrHaveApp(appId);
+    public EmptyResult addOrModifyPropertyValue(@RequestBody Map<String, String> map) {
+        String appId=map.get("appId");
+        String profileId= map.get("profileId");
+        String branchId=map.get("branchId");
+        String key=map.get("key");
+        String value=map.get("value");
+        String scope=map.get("scope");
+        ManagerApps.assertAdminOrHaveApp(map.get("appId"));
         AppPropertyTypes.assertAdminOrOnlyReadWrite(appId, Collections.singleton(key));
 
         AddOrModifyPropertyValueOrder order = new AddOrModifyPropertyValueOrder();
@@ -67,8 +76,7 @@ public class PropertyValueController {
         order.setBranchId(branchId);
         order.setKey(key);
         order.setValue(value);
-        order.setScope(scope);
-
+        order.setScope(Scope.valueOf(scope));
         return propertyValueService.addOrModifyPropertyValue(order);
     }
 
@@ -84,13 +92,11 @@ public class PropertyValueController {
     public EmptyResult deletePropertyValue(String appId, String profileId, String branchId, String key) {
         ManagerApps.assertAdminOrHaveApp(appId);
         AppPropertyTypes.assertAdminOrOnlyReadWrite(appId, Collections.singleton(key));
-
         DeletePropertyValueOrder order = new DeletePropertyValueOrder();
         order.setAppId(appId);
         order.setProfileId(profileId);
         order.setBranchId(branchId);
         order.setKey(key);
-
         return propertyValueService.deletePropertyValue(order);
     }
 
