@@ -236,7 +236,7 @@ const PropertyValuesTemplate = `
                               :cell-style="{padding: '3px 0px'}"
                               :cell-class-name="emptyTableCellClassName"
                               border>
-                        <el-table-column label="环境" :resizable="false" width="150px">
+                        <el-table-column label="名称空间" :resizable="false" width="150px">
                             <span style="font-size: larger;color: #409EFF">{{ profileProperty.profileId }}</span>
                         </el-table-column>
                         <el-table-column prop="key" label="配置key" :resizable="false">

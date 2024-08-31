@@ -35,18 +35,28 @@ public interface PropertyValueDao{
     PropertyValue findLockByAppIdAndProfileIdAndBranchIdAndKey(String appId, String profileId, String branchId, String key);
 
 
+//    @Query("SELECT pv FROM PropertyValue pv WHERE "
+//            + "pv.appId = :appId AND "
+//            + "pv.profileId = :profileId AND "
+//            + "pv.branchId = :branchId AND "
+//            + "(COALESCE(:searchKey, '') = '' OR pv.key LIKE CONCAT('%', :searchKey, '%'))")
+//    List<PropertyValue> findByAppIdAndProfileIdAndBranchIdAndKey(
+//            @Param("appId") String appId,
+//            @Param("profileId") String profileId,
+//            @Param("branchId") String branchId,
+//            @Param("searchKey") String searchKey);
+//
+
     @Query("SELECT pv FROM PropertyValue pv WHERE "
             + "pv.appId = :appId AND "
             + "pv.profileId = :profileId AND "
             + "pv.branchId = :branchId AND "
-            + "(COALESCE(:searchKey, '') = '' OR pv.key LIKE CONCAT('%', :searchKey, '%'))")
+            + "(COALESCE(:searchKey, '') = '' OR LOWER(pv.key) LIKE CONCAT('%', LOWER(:searchKey), '%'))")
     List<PropertyValue> findByAppIdAndProfileIdAndBranchIdAndKey(
             @Param("appId") String appId,
             @Param("profileId") String profileId,
             @Param("branchId") String branchId,
             @Param("searchKey") String searchKey);
-
-
 
     @Query("SELECT p FROM PropertyValue p WHERE p.appId = :appId AND p.profileId = :profileId AND p.branchId = :branchId")
     List<PropertyValue> findAllProfilesByParentId(

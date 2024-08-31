@@ -161,3 +161,19 @@ CREATE TABLE `Release` (
                            UNIQUE KEY `uk_appId_profileId_version` (`appId`,`profileId`,`version`),
                            KEY `idx_appId_profileId_parentVersion` (`appId`,`profileId`,`parentVersion`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+
+# 操作日志表
+CREATE TABLE `sys_log` (
+                                          `id` bigint NOT NULL AUTO_INCREMENT,
+                                          `propertyValueId` bigint NOT NULL,
+                                          `appId` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+                                          `profileId` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+                                          `branchId` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+                                          `oldKey` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+                                          `newKey` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+                                          `updateTime` datetime DEFAULT CURRENT_TIMESTAMP,
+                                          `updatedBy` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+                                          PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
