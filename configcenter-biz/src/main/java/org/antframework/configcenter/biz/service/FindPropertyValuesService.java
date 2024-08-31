@@ -55,7 +55,7 @@ public class FindPropertyValuesService {
         FindPropertyValuesOrder order = context.getOrder();
         FindPropertyValuesResult result = context.getResult();
         // 查找配置value集
-        List<PropertyValue> propertyValues = propertyValueDao.findByAppIdAndProfileIdAndBranchId(order.getAppId(), order.getProfileId(), order.getBranchId());
+        List<PropertyValue> propertyValues = propertyValueDao.findByAppIdAndProfileIdAndBranchIdAndKey(order.getAppId(), order.getProfileId(), order.getBranchId(), order.getSearchKey());
         propertyValues.stream()
                 .filter(propertyValue -> propertyValue.getScope().compareTo(order.getMinScope()) >= 0)
                 .map(CONVERTER::convert)

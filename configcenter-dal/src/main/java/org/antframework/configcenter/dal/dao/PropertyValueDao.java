@@ -34,8 +34,18 @@ public interface PropertyValueDao{
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     PropertyValue findLockByAppIdAndProfileIdAndBranchIdAndKey(String appId, String profileId, String branchId, String key);
 
-    @Cacheable(cacheNames = CacheConstant.PROPERTY_VALUES_CACHE_NAME, key = "#p0 + ',' + #p1 + ',' + #p2")
-    List<PropertyValue> findByAppIdAndProfileIdAndBranchId(String appId, String profileId, String branchId);
+
+    @Query("SELECT pv FROM PropertyValue pv WHERE "
+            + "pv.appId = :appId AND "
+            + "pv.profileId = :profileId AND "
+            + "pv.branchId = :branchId AND "
+            + "(COALESCE(:searchKey, '') = '' OR pv.key LIKE CONCAT('%', :searchKey, '%'))")
+    List<PropertyValue> findByAppIdAndProfileIdAndBranchIdAndKey(
+            @Param("appId") String appId,
+            @Param("profileId") String profileId,
+            @Param("branchId") String branchId,
+            @Param("searchKey") String searchKey);
+
 
 
     @Query("SELECT p FROM PropertyValue p WHERE p.appId = :appId AND p.profileId = :profileId AND p.branchId = :branchId")

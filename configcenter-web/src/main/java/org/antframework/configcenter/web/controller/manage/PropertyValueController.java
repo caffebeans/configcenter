@@ -28,6 +28,7 @@ import org.antframework.configcenter.web.common.AppPropertyTypes;
 import org.antframework.configcenter.web.common.ManagerApps;
 import org.antframework.manager.facade.enums.ManagerType;
 import org.antframework.manager.web.CurrentManagerAssert;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -145,7 +146,7 @@ public class PropertyValueController {
      * @param minScope  最小作用域
      */
     @RequestMapping("/findPropertyValues")
-    public FindPropertyValuesResult findPropertyValues(String appId, String profileId, String branchId, Scope minScope) {
+    public FindPropertyValuesResult findPropertyValues(String appId, String profileId, String branchId, Scope minScope,String searchKey) {
         ManagerApps.assertAdminOrHaveApp(appId);
 
         FindPropertyValuesOrder order = new FindPropertyValuesOrder();
@@ -153,6 +154,11 @@ public class PropertyValueController {
         order.setProfileId(profileId);
         order.setBranchId(branchId);
         order.setMinScope(minScope);
+        if (StringUtils.isBlank(searchKey)){
+             order.setSearchKey("");
+        }else {
+            order.setSearchKey( searchKey = "%" + searchKey + "%");
+        }
 
         FindPropertyValuesResult result = propertyValueService.findPropertyValues(order);
         if (result.isSuccess() && CurrentManagerAssert.current().getType() != ManagerType.ADMIN) {

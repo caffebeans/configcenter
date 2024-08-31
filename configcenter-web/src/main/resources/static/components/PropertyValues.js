@@ -3,6 +3,8 @@ const PropertyValuesTemplate = `
 <div id="propertyValuesApp">
     <el-row style="margin-bottom: 10px">
         <el-col :span="16">
+
+        <!--
             <span style="font-size: large;color: #409EFF;">环境：</span>
             <el-select v-model="currentProfileId" @change="switchProfile" placeholder="请选择环境" size="medium">
                 <el-option v-for="profile in allProfiles" :value="profile.profileId" :label="toShowingProfile(profile)" :key="profile.profileId">
@@ -10,7 +12,9 @@ const PropertyValuesTemplate = `
                     <span>{{ toShowingProfile(profile) }}</span>
                 </el-option>
             </el-select>
-            <span style="font-size: large;color: #409EFF;">分支：</span>
+        -->
+
+            <span style="font-size: large;color: #409EFF;">名称空间：</span>
             <el-select v-model="branchId" @change="findAllData" placeholder="请选择分支" size="medium">
                 <el-option v-for="branch in branches" :value="branch.branchId" :label="branch.branchId" :key="branch.branchId"></el-option>
             </el-select>
@@ -27,7 +31,33 @@ const PropertyValuesTemplate = `
                            <el-button type="text">环境导出</el-button>
                  </router-link>
         </el-col>
-    </el-row>
+    </el-row style="margin-bottom: 20px">
+
+     <el-row>
+       <el-col :span="12"><div class="grid-content bg-purple"></div></el-col>
+       <el-col :span="12"><div class="grid-content bg-purple-light"></div></el-col>
+     </el-row>
+
+        <!-- 搜索 key -->
+        <el-row style="margin-bottom: 20px">
+          <el-col :span="6" style="margin-right: 10px;">
+            <el-input
+              v-model="searchKey"
+              placeholder="请输入key"
+              @change="handleSearch"
+              @blur="handleSearch"
+              @keyup.native.enter="handleSearch">
+            </el-input>
+          </el-col>
+          <el-col :span="1" style="margin-right: 10px;" >
+            <el-button type="primary"  @click="handleSearch">搜索</el-button>
+          </el-col>
+            <el-col :span="1">
+                      <el-button type="danger" @click="handleSearchReset">重置</el-button>
+                    </el-col>
+        </el-row>
+
+
     <el-row style="margin-bottom: 10px">
         <el-col :span="5">
             <el-button type="primary" icon="el-icon-plus" size="small" :disabled="showMode!=='table'" @click="addPropertyValueDialogShowing = true" plain>新增</el-button>
@@ -376,6 +406,7 @@ const PropertyValues = {
     props: ['appId', 'profileId'],
     data: function () {
         return {
+            searchKey:'',
             compareData:[],
             currentProfileId: this.profileId,
             branchId: 'master',
@@ -699,7 +730,38 @@ const PropertyValues = {
         this.findAllData();
     },
     methods: {
+
+     //重置搜索条件
+      handleSearchReset:function(){
+         this.searchKey = '';
+         this.handleSearch();
+      },
+
+       handleSearch: function(){
+            const theThis = this;
+             axios.get('../manage/propertyValue/findPropertyValues', {
+                 params: {
+                     appId: this.appId,
+                     profileId: this.profileId,
+                     branchId: this.branchId,
+                     searchKey: this.searchKey,
+                     minScope: 'PRIVATE'
+                 }
+             }).then(function (result) {
+                 if (!result.success) {
+                     Vue.prototype.$message.error(result.message);
+                     return;
+                 }
+
+                 theThis.propertyValues = result.propertyValues;
+//                 if (callback) {
+//                     callback(theThis.propertyValues);
+//                 }
+             });
+
+       },
         findAllData: function () {
+
             this.findAllProfiles();
             this.findBranches();
             this.findPropertyValues();
@@ -1116,27 +1178,40 @@ const PropertyValues = {
             });
         },
 
-        doAddOrModifyPropertyValue: function (key, value, scope, callback) {
-            const data = {
-                appId: this.appId,
-                profileId: this.profileId,
-                branchId: this.branchId,
-                key: key,
-                value: value,
-                scope: scope
-            }
-             fetch("../manage/propertyValue/addOrModifyPropertyValue", {
-                 method: "POST",
-                 headers: {
-                   "Content-Type": "application/json",
-                 },
-                 body: JSON.stringify(data),
-               })
-                 .then((response) => response.json())
-                 .then((data) => console.log(data))
-                 .catch((error) => console.error("Error:", error));
 
-        },
+ doAddOrModifyPropertyValue: function (key, value, scope, callback) {
+     const payload = {
+         appId: this.appId,
+         profileId: this.profileId,
+         branchId: this.branchId,
+         key: key,
+         value: value,
+         scope: scope
+     };
+
+     fetch('../manage/propertyValue/addOrModifyPropertyValue', {
+         method: 'POST', // 将请求方法改为 POST
+         headers: {
+             'Content-Type': 'application/json' // 设置请求头为 JSON 格式
+         },
+         body: JSON.stringify(payload) // 将数据序列化为JSON字符串
+     })
+     .then(response => response.json()) // 解析响应为 JSON
+     .then(result => {
+         if (!result.success) {
+             Vue.prototype.$message.error(result.message);
+             return;
+         }
+         if (callback) {
+             callback();
+         }
+     })
+     .catch(error => {
+         console.error('Error:', error);
+     });
+ },
+
+
 
         deletePropertyValue: function (key, callback) {
             const theThis = this;
@@ -1354,7 +1429,7 @@ const PropertyValues = {
             }
             let text = app.appId;
             if (app.appName) {
-                text += '（' + app.appName + '）';
+                text += "   ";
             }
             return text;
         },

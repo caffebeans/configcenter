@@ -34,4 +34,7 @@ public class FindPropertyValuesOrder extends AbstractOrder {
     // 最小作用域
 
     private Scope minScope;
+
+    private String searchKey;
+
 }
