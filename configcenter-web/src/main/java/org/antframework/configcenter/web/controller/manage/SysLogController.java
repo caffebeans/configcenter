@@ -30,9 +30,7 @@ import org.antframework.manager.web.CurrentManagerAssert;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -58,12 +56,13 @@ public class SysLogController {
      * @param parent  父应用id
      */
     @RequestMapping("/findAll")
-    public ResponseEntity findAll(String appId, @RequestParam int pageNo, @RequestParam int pageSize) {
+    public ResponseEntity findAll(@ModelAttribute SysLogVo sysLogVo,
+                                  @RequestParam int pageNo,
+                                  @RequestParam int pageSize) {
 
-        SysLogVo sysLogVo = new SysLogVo();
-        sysLogVo.setAppId(appId);
         sysLogVo.setPageNo(pageNo);
         sysLogVo.setPageSize(pageSize);
+
         PageInfo<SysLogVo> all = service.findAll(sysLogVo);
         return ResponseEntity.ok(all);
     }

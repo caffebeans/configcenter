@@ -54,7 +54,7 @@ const PropertyValuesTemplate = `
           </el-col>
             <el-col :span="1">
                       <el-button type="danger" @click="handleSearchReset">重置</el-button>
-                    </el-col>
+            </el-col>
         </el-row>
 
 

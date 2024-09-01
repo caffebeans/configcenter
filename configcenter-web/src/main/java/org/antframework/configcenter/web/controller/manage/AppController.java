@@ -147,7 +147,10 @@ public class AppController {
         order.setAppId(appId);
         order.setParent(parent);
 
-        return appService.queryApps(order);
+        QueryAppsResult queryAppsResult = appService.queryApps(order);
+        queryAppsResult.getInfos().sort((o1, o2) -> o1.getAppId().compareTo(o2.getAppId()));
+
+        return queryAppsResult;
     }
 
     /**
