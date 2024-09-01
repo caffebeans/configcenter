@@ -6,7 +6,8 @@ import java.util.Date;
 
 
 @Data
-public class SysLogVo {
+public class SysLogVo extends AbstractOrder{
+
     private Long id;
     private Date createTime;
 
@@ -22,7 +23,7 @@ public class SysLogVo {
 
     private String profileId;
 
-    private Long propertyKey;
+    private String propertyKey;
 
     private String updatedBy;
 

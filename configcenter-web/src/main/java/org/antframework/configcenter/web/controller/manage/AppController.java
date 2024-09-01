@@ -140,8 +140,6 @@ public class AppController {
     @RequestMapping("/queryApps")
     public QueryAppsResult queryApps(int pageNo, int pageSize, String appId, String parent) {
 
-        List<SysLogVo> all = service.findAll(new SysLogVo());
-
         CurrentManagerAssert.admin();
         QueryAppsOrder order = new QueryAppsOrder();
         order.setPageNo(pageNo);

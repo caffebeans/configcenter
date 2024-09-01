@@ -8,85 +8,36 @@ const SysLogsTemplate = `
                     <el-input v-model="queryAppsForm.appId" clearable placeholder="应用id"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-input v-model="queryAppsForm.parent" clearable placeholder="父应用id"></el-input>
+                    <el-input v-model="queryAppsForm.parent" clearable placeholder="名称空间"></el-input>
                 </el-form-item>
-                <el-form-item>
+                   <el-form-item>
+                        <el-input v-model="queryAppsForm.parent" clearable placeholder="key值"></el-input>
+                   </el-form-item>
+                  <el-form-item>
                     <el-button type="primary" icon="el-icon-search" @click="queryApps">查询</el-button>
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" icon="el-icon-plus" @click="addAppDialogVisible = true">新增</el-button>
                 </el-form-item>
             </el-form>
         </el-col>
     </el-row>
     <el-table :data="apps" v-loading="appsLoading" border stripe>
         <el-table-column prop="appId" label="应用id"></el-table-column>
-        <el-table-column prop="appName" label="应用名">
-            <template slot-scope="{ row }">
-                <span v-if="!row.editing">{{ row.appName }}</span>
-                <el-input v-else v-model="row.editingAppName" size="small" clearable placeholder="请输入应用名"></el-input>
-            </template>
+        <el-table-column prop="branchId" label="名称空间"></el-table-column>
+        <el-table-column prop="propertyKey" label="key"></el-table-column>
+        <el-table-column prop="oldValue" label="旧值" show-overflow-tooltip></el-table-column>
+        <el-table-column prop="newValue" label="新值" show-overflow-tooltip></el-table-column>
+        <el-table-column
+            prop="updateTime"
+            label="更新时间"
+            :formatter="formatUpdateTime">
         </el-table-column>
-        <el-table-column prop="parent" label="父应用">
-            <template slot-scope="{ row }">
-                <span v-if="!row.editing">{{ toShowingApp(row.parentApp) }}</span>
-                <el-select v-else v-model="row.editingParent" filterable remote :remote-method="queryMatchedApps" @focus="queryMatchedApps(row.editingParent)" clearable size="small" placeholder="请选择父应用">
-                    <el-option v-if="matchedApps === null && row.parentApp" :value="row.parentApp.appId" :label="toShowingApp(row.parentApp)" :key="row.parentApp.appId"></el-option>
-                    <el-option v-for="app in matchedApps" :value="app.appId" :label="toShowingApp(app)" :key="app.appId"></el-option>
-                </el-select>
-            </template>
-        </el-table-column>
-        <el-table-column label="操作" header-align="center" width="160px">
-            <template slot-scope="{ row }">
-                <el-row>
-                    <el-col :span="12" style="text-align: center">
-                        <el-tooltip v-if="!row.editing" content="修改" placement="top" :open-delay="1000" :hide-after="3000">
-                            <el-button @click="startEditing(row)" type="primary" icon="el-icon-edit" size="small" circle></el-button>
-                        </el-tooltip>
-                        <template v-else>
-                            <el-button-group>
-                                <el-tooltip content="取消修改" placement="top" :open-delay="1000" :hide-after="3000">
-                                    <el-button @click="row.editing = false" type="info" icon="el-icon-close" size="small" circle></el-button>
-                                </el-tooltip>
-                                <el-tooltip content="保存修改" placement="top" :open-delay="1000" :hide-after="3000">
-                                    <el-button @click="saveEditing(row)" type="success" icon="el-icon-check" size="small" circle></el-button>
-                                </el-tooltip>
-                            </el-button-group>
-                        </template>
-                    </el-col>
-                    <el-col :span="12" style="text-align: center">
-                        <el-tooltip content="删除" placement="top" :open-delay="1000" :hide-after="3000">
-                            <el-button @click="deleteApp(row)" type="danger" icon="el-icon-delete" size="small" circle></el-button>
-                        </el-tooltip>
-                    </el-col>
-                </el-row>
-            </template>
-        </el-table-column>
+        <el-table-column prop="updatedBy" label="更新人"></el-table-column>
     </el-table>
+
     <el-row style="margin-top: 10px">
         <el-col style="text-align: end">
             <el-pagination :total="totalApps" :current-page.sync="queryAppsForm.pageNo" :page-size.sync="queryAppsForm.pageSize" @current-change="queryApps" layout="total,prev,pager,next" small background></el-pagination>
         </el-col>
     </el-row>
-    <el-dialog :visible.sync="addAppDialogVisible" :before-close="closeAddAppDialog" title="新增应用" width="40%">
-        <el-form ref="addAppForm" :model="addAppForm" label-width="20%">
-            <el-form-item label="应用id" prop="appId" :rules="[{required:true, message:'请输入应用id', trigger:'blur'}]">
-                <el-input v-model="addAppForm.appId" clearable placeholder="请输入应用id" style="width: 90%"></el-input>
-            </el-form-item>
-            <el-form-item label="应用名">
-                <el-input v-model="addAppForm.appName" clearable placeholder="请输入应用名" style="width: 90%"></el-input>
-            </el-form-item>
-            <el-form-item label="父应用" prop="parent">
-                <el-select v-model="addAppForm.parent" filterable remote :remote-method="queryMatchedApps" @focus="queryMatchedApps(addAppForm.parent)" clearable placeholder="请选择父应用" style="width: 90%">
-                    <el-option v-for="app in matchedApps" :value="app.appId" :label="toShowingApp(app)" :key="app.appId"></el-option>
-                </el-select>
-            </el-form-item>
-        </el-form>
-        <div slot="footer">
-            <el-button @click="closeAddAppDialog">取消</el-button>
-            <el-button type="primary" @click="addApp">提交</el-button>
-        </div>
-    </el-dialog>
 </div>
 `;
 
@@ -98,6 +49,7 @@ const SysLogs = {
                 pageNo: 1,
                 pageSize: 10,
                 appId: null,
+                branchId: null,
                 parent: null
             },
             appsLoading: false,
@@ -116,24 +68,30 @@ const SysLogs = {
         this.queryApps();
     },
     methods: {
-        queryApps: function () {
-            this.appsLoading = true;
+        //格式化时间
+        formatUpdateTime:function(row, column, cellValue) {
+          if (!cellValue) return '';
+          const date = new Date(cellValue);
+          const year = date.getFullYear();
+          const month = (date.getMonth() + 1).toString().padStart(2, '0');
+          const day = date.getDate().toString().padStart(2, '0');
+          const hours = date.getHours().toString().padStart(2, '0');
+          const minutes = date.getMinutes().toString().padStart(2, '0');
+          const seconds = date.getSeconds().toString().padStart(2, '0');
+          return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        },
 
+        queryApps: function () {
+            this.appsLoading = false;
             const theThis = this;
             this.doQueryApps(this.queryAppsForm, function (result) {
-                result.infos.forEach(function (app) {
+                result.list.forEach(function (app) {
                     app.editing = false;
                     app.editingAppName = null;
                     app.editingParent = null;
-                    app.parentApp = null;
-                    if (app.parent) {
-                        theThis.doFindApp(app.parent, function (parentApp) {
-                            app.parentApp = parentApp;
-                        });
-                    }
                 });
-                theThis.totalApps = result.totalCount;
-                theThis.apps = result.infos;
+                theThis.totalApps = result.total;
+                theThis.apps = result.list;
                 theThis.appsLoading = false;
             }, function () {
                 theThis.appsLoading = false;
@@ -220,9 +178,9 @@ const SysLogs = {
             return text;
         },
         doQueryApps: function (params, processResult, failCallback) {
-            axios.get('../manage/app/queryApps', {params: params})
+            axios.get('../manage/sygLogs/findAll', {params: params})
                 .then(function (result) {
-                    if (result.success) {
+                    if (result) {
                         processResult(result);
                     } else {
                         Vue.prototype.$message.error(result.message);

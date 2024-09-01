@@ -59,9 +59,11 @@ public class AddOrModifyPropertyValueService {
             propertyValue = new PropertyValue();
             sysLog.setOldValue(order.getValue());
             sysLog.setNewValue(order.getValue());
+            sysLog.setPropertyKey(order.getKey());
         }else {
             sysLog.setOldValue(propertyValue.getValue());
             sysLog.setNewValue(order.getValue());
+            sysLog.setPropertyKey(propertyValue.getKey());
         }
 
         BeanUtils.copyProperties(order, propertyValue);
@@ -70,7 +72,6 @@ public class AddOrModifyPropertyValueService {
         sysLog.setAppId(order.getAppId());
         sysLog.setBranchId(order.getBranchId());
         sysLog.setProfileId(order.getProfileId());
-        sysLog.setPropertyKey(order.getKey());
         sysLog.setUpdateTime(new Date());
         //获取当前用户
         ManagerInfo manager = CurrentManagerAssert.current();
