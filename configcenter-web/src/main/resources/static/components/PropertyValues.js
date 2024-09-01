@@ -107,9 +107,9 @@ const PropertyValuesTemplate = `
                               :cell-class-name="tableCellClassName"
                               :cell-style="{padding: '3px 0px'}"
                               border>
-                        <el-table-column label="环境" :resizable="false" width="150px">
+                        <el-table-column label="名称空间" :resizable="false" width="150px">
                             <template slot-scope="{ row }">
-                                <span style="font-size: larger;color: #409EFF">{{ profileProperty.profileId }}</span>
+                                <span style="font-size: larger;color: #409EFF">{{branchId}}</span>
                             </template>
                         </el-table-column>
                         <el-table-column prop="key" label="配置key" :resizable="false">
@@ -237,7 +237,7 @@ const PropertyValuesTemplate = `
                               :cell-class-name="emptyTableCellClassName"
                               border>
                         <el-table-column label="名称空间" :resizable="false" width="150px">
-                            <span style="font-size: larger;color: #409EFF">{{ profileProperty.profileId }}</span>
+                            <span style="font-size: larger;color: #409EFF">{{branchId}}</span>
                         </el-table-column>
                         <el-table-column prop="key" label="配置key" :resizable="false">
                             <div style="text-align: center">

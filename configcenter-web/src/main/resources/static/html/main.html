@@ -13,6 +13,7 @@
         document.write("<script src=\"../components/Branches.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
         document.write("<script src=\"../components/Releases.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
         document.write("<script src=\"../components/Apps.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
+        document.write("<script src=\"../components/SysLogs.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
         document.write("<script src=\"../components/Profiles.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
         document.write("<script src=\"../components/ManagerApps.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
     </script>
@@ -143,21 +144,34 @@
     }];
     // 超级管理员权限
     const ADMIN_MANAGER_ROUTES = Object.assign([], NORMAL_MANAGER_ROUTES);
-    ADMIN_MANAGER_ROUTES.push({
+    ADMIN_MANAGER_ROUTES.push(
+    {
         path: '/apps',
         component: Apps,
         meta: {
             title: '应用',
             icon: 'el-icon-menu'
         }
-    }, {
+    },
+     {
         path: '/profiles',
         component: Profiles,
         meta: {
             title: '环境',
             icon: 'configcenter-iconfont configcenter-icon-cloud'
         }
-    }, GET_MANAGER_MANAGERS_ROUTE(), {
+    },
+         {
+        path: '/sysLogs',
+        component: SysLogs,
+        meta: {
+            title: '操作日志',
+            icon: 'el-icon-info'
+        }
+    },
+
+
+     GET_MANAGER_MANAGERS_ROUTE(), {
         path: '/managerApps',
         component: ManagerApps,
         meta: {
