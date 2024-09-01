@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.antframework.configcenter.dal.dao.SysLogMapper">
+  <resultMap id="BaseResultMap" type="org.antframework.configcenter.dal.entity.SysLog">
+    <!--@mbg.generated-->
+    <!--@Table SysLog-->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="createTime" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="updateTime" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="appId" jdbcType="VARCHAR" property="appId" />
+    <result column="branchId" jdbcType="VARCHAR" property="branchId" />
+    <result column="newValue" jdbcType="VARCHAR" property="newValue" />
+    <result column="oldValue" jdbcType="VARCHAR" property="oldValue" />
+    <result column="profileId" jdbcType="VARCHAR" property="profileId" />
+    <result column="propertyValueId" jdbcType="BIGINT" property="propertyvalueId" />
+    <result column="updatedBy" jdbcType="VARCHAR" property="updatedby" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, createTime, updateTime, appId, branchId, newValue, oldValue, profileId, propertyValueId, 
+    updatedBy
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from SysLog
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    <!--@mbg.generated-->
+    delete from SysLog
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.antframework.configcenter.dal.entity.SysLog" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into SysLog (createTime, updateTime, appId, 
+      branchId, newValue, oldValue, 
+      profileId, propertyValueId, updatedBy
+      )
+    values (#{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{appId,jdbcType=VARCHAR}, 
+      #{branchId,jdbcType=VARCHAR}, #{newValue,jdbcType=VARCHAR}, #{oldValue,jdbcType=VARCHAR}, 
+      #{profileId,jdbcType=VARCHAR}, #{propertyvalueId,jdbcType=BIGINT}, #{updatedby,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.antframework.configcenter.dal.entity.SysLog" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into SysLog
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="createTime != null">
+        createTime,
+      </if>
+      <if test="updateTime != null">
+        updateTime,
+      </if>
+      <if test="appId != null">
+        appId,
+      </if>
+      <if test="branchId != null">
+        branchId,
+      </if>
+      <if test="newValue != null">
+        newValue,
+      </if>
+      <if test="oldValue != null">
+        oldValue,
+      </if>
+      <if test="profileId != null">
+        profileId,
+      </if>
+      <if test="propertyvalueId != null">
+        propertyValueId,
+      </if>
+      <if test="updatedby != null">
+        updatedBy,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="appId != null">
+        #{appId,jdbcType=VARCHAR},
+      </if>
+      <if test="branchId != null">
+        #{branchId,jdbcType=VARCHAR},
+      </if>
+      <if test="newValue != null">
+        #{newValue,jdbcType=VARCHAR},
+      </if>
+      <if test="oldValue != null">
+        #{oldValue,jdbcType=VARCHAR},
+      </if>
+      <if test="profileId != null">
+        #{profileId,jdbcType=VARCHAR},
+      </if>
+      <if test="propertyvalueId != null">
+        #{propertyvalueId,jdbcType=BIGINT},
+      </if>
+      <if test="updatedby != null">
+        #{updatedby,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.antframework.configcenter.dal.entity.SysLog">
+    <!--@mbg.generated-->
+    update SysLog
+    <set>
+      <if test="createTime != null">
+        createTime = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        updateTime = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="appId != null">
+        appId = #{appId,jdbcType=VARCHAR},
+      </if>
+      <if test="branchId != null">
+        branchId = #{branchId,jdbcType=VARCHAR},
+      </if>
+      <if test="newValue != null">
+        newValue = #{newValue,jdbcType=VARCHAR},
+      </if>
+      <if test="oldValue != null">
+        oldValue = #{oldValue,jdbcType=VARCHAR},
+      </if>
+      <if test="profileId != null">
+        profileId = #{profileId,jdbcType=VARCHAR},
+      </if>
+      <if test="propertyvalueId != null">
+        propertyValueId = #{propertyvalueId,jdbcType=BIGINT},
+      </if>
+      <if test="updatedby != null">
+        updatedBy = #{updatedby,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.antframework.configcenter.dal.entity.SysLog">
+    <!--@mbg.generated-->
+    update SysLog
+    set createTime = #{createTime,jdbcType=TIMESTAMP},
+      updateTime = #{updateTime,jdbcType=TIMESTAMP},
+      appId = #{appId,jdbcType=VARCHAR},
+      branchId = #{branchId,jdbcType=VARCHAR},
+      newValue = #{newValue,jdbcType=VARCHAR},
+      oldValue = #{oldValue,jdbcType=VARCHAR},
+      profileId = #{profileId,jdbcType=VARCHAR},
+      propertyValueId = #{propertyvalueId,jdbcType=BIGINT},
+      updatedBy = #{updatedby,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
