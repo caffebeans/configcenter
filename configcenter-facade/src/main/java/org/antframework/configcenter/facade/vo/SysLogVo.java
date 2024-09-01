@@ -1,7 +1,11 @@
 package org.antframework.configcenter.facade.vo;
 
+import lombok.Data;
+
 import java.util.Date;
 
+
+@Data
 public class SysLogVo {
     private Long id;
     private Date createTime;
@@ -18,7 +22,7 @@ public class SysLogVo {
 
     private String profileId;
 
-    private Long propertyValue;
+    private Long propertyKey;
 
     private String updatedBy;
 

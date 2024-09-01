@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import javax.persistence.Table;
 import java.util.Date;
@@ -11,7 +12,9 @@ import java.util.Date;
 
 
 @TableName("sys_log")
+@Data
 public class SysLogDo {
+
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
@@ -24,6 +27,10 @@ public class SysLogDo {
     @TableField("appId")
     private String appId;
 
+
+    @TableField("profileId")
+    private String profileId="master";
+
     @TableField("branchId")
     private String branchId;
 
@@ -33,11 +40,9 @@ public class SysLogDo {
     @TableField("oldValue")
     private String oldValue;
 
-    @TableField("profileId")
-    private String profileId;
+    @TableField("propertyKey")
+    private String propertyKey;
 
-    @TableField("propertyValue")
-    private Long propertyValue;
     @TableField("updatedBy")
     private String updatedBy;
 
