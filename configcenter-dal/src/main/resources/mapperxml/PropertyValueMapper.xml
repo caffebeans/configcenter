@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.antframework.configcenter.dal.dao.PropertyValueMapper">
+  <resultMap id="BaseResultMap" type="org.antframework.configcenter.dal.entity.PropertyValue">
+    <!--@mbg.generated-->
+    <!--@Table PropertyValue-->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="createTime" jdbcType="TIMESTAMP" property="createtime" />
+    <result column="updateTime" jdbcType="TIMESTAMP" property="updatetime" />
+    <result column="appId" jdbcType="VARCHAR" property="appid" />
+    <result column="branchId" jdbcType="VARCHAR" property="branchid" />
+    <result column="key" jdbcType="VARCHAR" property="key" />
+    <result column="profileId" jdbcType="VARCHAR" property="profileid" />
+    <result column="scope" jdbcType="VARCHAR" property="scope" />
+    <result column="value" jdbcType="LONGVARCHAR" property="value" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, createTime, updateTime, appId, branchId, `key`, profileId, `scope`, `value`
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <!--@mbg.generated-->
+    select 
+    <include refid="Base_Column_List" />
+    from PropertyValue
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    <!--@mbg.generated-->
+    delete from PropertyValue
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="org.antframework.configcenter.dal.entity.PropertyValue" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into PropertyValue (createTime, updateTime, appId, 
+      branchId, `key`, profileId, 
+      `scope`, `value`)
+    values (#{createtime,jdbcType=TIMESTAMP}, #{updatetime,jdbcType=TIMESTAMP}, #{appid,jdbcType=VARCHAR}, 
+      #{branchid,jdbcType=VARCHAR}, #{key,jdbcType=VARCHAR}, #{profileid,jdbcType=VARCHAR}, 
+      #{scope,jdbcType=VARCHAR}, #{value,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="org.antframework.configcenter.dal.entity.PropertyValue" useGeneratedKeys="true">
+    <!--@mbg.generated-->
+    insert into PropertyValue
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="createtime != null">
+        createTime,
+      </if>
+      <if test="updatetime != null">
+        updateTime,
+      </if>
+      <if test="appid != null">
+        appId,
+      </if>
+      <if test="branchid != null">
+        branchId,
+      </if>
+      <if test="key != null">
+        `key`,
+      </if>
+      <if test="profileid != null">
+        profileId,
+      </if>
+      <if test="scope != null">
+        `scope`,
+      </if>
+      <if test="value != null">
+        `value`,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="createtime != null">
+        #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatetime != null">
+        #{updatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="appid != null">
+        #{appid,jdbcType=VARCHAR},
+      </if>
+      <if test="branchid != null">
+        #{branchid,jdbcType=VARCHAR},
+      </if>
+      <if test="key != null">
+        #{key,jdbcType=VARCHAR},
+      </if>
+      <if test="profileid != null">
+        #{profileid,jdbcType=VARCHAR},
+      </if>
+      <if test="scope != null">
+        #{scope,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null">
+        #{value,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="org.antframework.configcenter.dal.entity.PropertyValue">
+    <!--@mbg.generated-->
+    update PropertyValue
+    <set>
+      <if test="createtime != null">
+        createTime = #{createtime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatetime != null">
+        updateTime = #{updatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="appid != null">
+        appId = #{appid,jdbcType=VARCHAR},
+      </if>
+      <if test="branchid != null">
+        branchId = #{branchid,jdbcType=VARCHAR},
+      </if>
+      <if test="key != null">
+        `key` = #{key,jdbcType=VARCHAR},
+      </if>
+      <if test="profileid != null">
+        profileId = #{profileid,jdbcType=VARCHAR},
+      </if>
+      <if test="scope != null">
+        `scope` = #{scope,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null">
+        `value` = #{value,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.antframework.configcenter.dal.entity.PropertyValue">
+    <!--@mbg.generated-->
+    update PropertyValue
+    set createTime = #{createtime,jdbcType=TIMESTAMP},
+      updateTime = #{updatetime,jdbcType=TIMESTAMP},
+      appId = #{appid,jdbcType=VARCHAR},
+      branchId = #{branchid,jdbcType=VARCHAR},
+      `key` = #{key,jdbcType=VARCHAR},
+      profileId = #{profileid,jdbcType=VARCHAR},
+      `scope` = #{scope,jdbcType=VARCHAR},
+      `value` = #{value,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

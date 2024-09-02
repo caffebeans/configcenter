@@ -16,6 +16,7 @@
         document.write("<script src=\"../components/SysLogs.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
         document.write("<script src=\"../components/Profiles.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
         document.write("<script src=\"../components/ManagerApps.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
+        document.write("<script src=\"../components/DataCompare.js?version=" + CONFIGCENTER_VERSION + "\"><\/script>");
     </script>
 
     <style>
@@ -168,7 +169,16 @@
             icon: 'configcenter-iconfont configcenter-icon-cloud'
         }
     },
+
          {
+        path: '/dataCompare',
+        component: DataCompare,
+        meta: {
+            title: '数据比对',
+            icon: 'el-icon-s-data'
+        }
+    },
+     {
         path: '/sysLogs',
         component: SysLogs,
         meta: {
@@ -176,7 +186,6 @@
             icon: 'el-icon-notebook-2'
         }
     },
-
 
      GET_MANAGER_MANAGERS_ROUTE(), {
         path: '/managerApps',
