@@ -28,4 +28,7 @@ target/
 .DS_Store
 Thumbs.db
 logs
+*.dev.properties
 
+application-dev.properties
+application-dev.yml
